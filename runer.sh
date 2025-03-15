@@ -1,6 +1,6 @@
 # Option 1: Use Docker Hub (will prompt for login)
 chmod +x run.sh
-./run.sh --registry 
+./run.sh --registry ilyavs46578
 
 # Option 2: Skip Docker Hub push (use local images only)
 ./run.sh --local-registry --skip-terraform
