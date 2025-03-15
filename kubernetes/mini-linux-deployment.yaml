@@ -1,0 +1,116 @@
+
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mini-linux
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mini-linux
+  namespace: mini-linux
+  labels:
+    app: mini-linux
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mini-linux
+  template:
+    metadata:
+      labels:
+        app: mini-linux
+    spec:
+      containers:
+      - name: mini-linux
+        image: ${DOCKER_REGISTRY}/mini-linux:latest  
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - echo "I'm alive"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - echo "I'm ready"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mini-linux-service
+  namespace: mini-linux
+spec:
+  selector:
+    app: mini-linux
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mini-linux-config
+  namespace: mini-linux
+data:
+  config.sh: |
+    #!/bin/sh
+    echo "Контейнер мини-Linux успешно запущен"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mini-linux-healthcheck
+  namespace: mini-linux
+spec:
+  schedule: "*/10 * * * *"  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: healthcheck
+            image: busybox:latest
+            command:
+            - /bin/sh
+            - -c
+            - echo "Проверка работоспособности $(date)" && wget -q -O- http://mini-linux-service
+          restartPolicy: OnFailure
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mini-linux-hpa
+  namespace: mini-linux
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mini-linux
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50

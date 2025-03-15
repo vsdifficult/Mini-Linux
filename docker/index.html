@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мини-Linux в Kubernetes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Мини-Linux в Kubernetes</h1>
+        <div class="info">
+            <p>Этот контейнер успешно запущен в Kubernetes кластере!</p>
+            <p id="pod-info">Загрузка информации о поде...</p>
+            <p id="timestamp">Время: <span id="current-time"></span></p>
+        </div>
+        
+        <h2>Системная информация</h2>
+        <pre id="system-info">Загрузка системной информации...</pre>
+    </div>
+
+    <script>
+        // Обновляем текущее время
+        function updateTime() {
+            document.getElementById('current-time').textContent = new Date().toLocaleString();
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Для реального использования здесь можно добавить API-запросы 
+        // для получения информации о поде и системе
+        document.getElementById('pod-info').textContent = 'Pod: mini-linux (Hostname: ' + window.location.hostname + ')';
+        document.getElementById('system-info').textContent = 'Alpine Linux\nNginx веб-сервер\nПод в Kubernetes';
+    </script>
+</body>
+</html>
